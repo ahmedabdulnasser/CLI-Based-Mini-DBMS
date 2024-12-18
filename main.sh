@@ -4,8 +4,7 @@ choice2="List Databases"
 choice3="Connect to Database"
 choice4="Drop Database"
 PS3="Your choice: "
-select choice in "$choice1" "$choice2" "$choice3" "$choice4"
-do
+select choice in "$choice1" "$choice2" "$choice3" "$choice4"; do
 	case $choice in
 	$choice1)
 		echo "Database name:"
@@ -23,4 +22,3 @@ do
 		;;
 	esac
 done
-
