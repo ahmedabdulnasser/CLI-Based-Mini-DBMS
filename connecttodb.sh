@@ -1,4 +1,5 @@
 #!/bin/bash
+PS3="Your choice: "
 dbList=$(./listdb.sh)
 if [[ -z $dbList ]]; then
 	echo "No databases exist."

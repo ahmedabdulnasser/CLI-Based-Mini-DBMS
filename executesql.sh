@@ -21,7 +21,7 @@ function executeSQL {
         # Extract basic parts
         column=$(echo "$sql" | awk '{print $2}')
         from=$(echo "$sql" | awk '{print tolower($3)}')
-        table=$(echo "$sql" | awk '{print $4}')
+        table=$(echo "$sql" | awk '{print $4 ".csv"}')
         where=$(echo "$sql" | awk '{print tolower($5)}')
 
         # Validate basic syntax
@@ -46,7 +46,7 @@ function executeSQL {
         fi
         ;;
     "update")
-        table=$(echo "$sql" | awk '{print $2}')
+        table=$(echo "$sql" | awk '{print $2 ".csv"}')
         set=$(echo "$sql" | awk '{print tolower($3)}')
         update_pair=$(echo "$sql" | cut -d' ' -f4)
         where=$(echo "$sql" | awk '{print tolower($5)}')
@@ -72,7 +72,7 @@ function executeSQL {
 
     "delete")
         from=$(echo "$sql" | awk '{print tolower($2)}')
-        table=$(echo "$sql" | awk '{print $3}')
+        table=$(echo "$sql" | awk '{print $3 ".csv"}')
         where=$(echo "$sql" | awk '{print tolower($4)}')
         condition=$(echo "$sql" | awk '{print $5}')
         conditionColumn=$(echo "$condition" | awk -F= '{print $1}')
@@ -91,7 +91,7 @@ function executeSQL {
         deleteFromTbl "${db}" "${table}" "${conditionColumn}" "${value}"
         ;;
     "drop")
-        table=$(echo "$sql" | awk '{print $2}')
+        table=$(echo "$sql" | awk '{print $2 ".csv"}')
         if [ -z "$table" ]; then
             echo "Syntax error in DROP statement."
             return 1
@@ -110,6 +110,23 @@ function executeSQL {
             rm -f "./${db}/${table}meta"
             echo "Table ${table} dropped."
         fi
+        ;;
+
+    "insert")
+        into=$(echo "$sql" | awk '{print tolower($2)}')
+        table=$(echo "$sql" | awk '{print $3}')
+        columnsInserted=$(echo "$sql" | awk '{print $4}')
+        columns=$(echo "$columnsInserted" | cut -d'(' -f2 | cut -d')' -f1)
+        valuesKeyword=$(echo "$sql" | awk '{print tolower($5)}')
+        valuesInserted=$(echo "$sql" | awk '{print $6}')
+        values=$(echo "$valuesInserted" | cut -d'(' -f2 | cut -d')' -f1)
+
+        if [ -z "$into" ] || [ -z "$table" ] || [ -z "$columns" ] || [ -z "$values" ] || [ -z "$valuesKeyword" ] || [[ ! "$into" == "into" ]] || [[ ! "$valuesKeyword" == "values" ]]; then
+            echo "Syntax error in INSERT statement."
+            return 1
+        fi
+
+        insertWithoutGUI "${db}" "${table}" "${columns}" "${values}"
         ;;
 
     esac

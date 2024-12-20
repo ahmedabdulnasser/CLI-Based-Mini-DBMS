@@ -54,6 +54,102 @@ function insert {
     done
 }
 
+function insertWithoutGUI {
+    local db=$1
+    local table=$2
+    table+=".csv"
+    local columns=$3
+    local values=$4
+    local pk=$(awk 'NR == 2' ./${db}/${table}meta | cut -d : -f 2)
+    local dataToAppend=""
+    local header=$(head -n 1 "./${db}/${table}")
+
+    if [ ! -d "./${db}" ]; then
+        echo "Database '${db}' does not exist '${db}'."
+        return 1
+    fi
+
+    if [ ! -f "./${db}/${table}" ]; then
+        echo "Table '${table}' not found in database '${db}'."
+        return 1
+    fi
+    IFS=',' read -ra columnsArr <<<"$columns"
+    IFS=',' read -ra valuesArr <<<"$values"
+    IFS=',' read -ra headerColumns <<<"$header"
+
+    if [ ${#columnsArr[@]} -ne ${#valuesArr[@]} ]; then
+        echo "Number of columns and values do not match."
+        return 1
+    fi
+
+    local finalValues=()
+    for i in "${!headerColumns[@]}"; do
+        finalValues[i]=""
+    done
+
+    for ((i = 0; i < ${#columnsArr[@]}; i++)); do
+        local col="${columnsArr[$i]}"
+        local cell="${valuesArr[$i]}"
+        local colIdx=-1
+
+        for j in in "${!headerColumns[@]}"; do
+            if [[ "${headerColumns[$j]}" == "${col}" ]]; then
+                colIdx=$j
+                break
+            fi
+        done
+
+        if [[ $colIdx -eq -1 ]]; then
+            echo "Column '${col}' not found in table '${table}'."
+            return 1
+        fi
+
+        local isDTValid=$(doDTCheck "${db}" "${table}" "${col}" "${pk}" "${cell}")
+        if [[ $isDTValid -eq 1 ]]; then
+            if [[ $col == $pk ]]; then
+                local isPKValid=$(doPKCheck "${db}" "${table}" "${col}" "${pk}" "${cell}")
+                if [[ $isPKValid -eq 0 ]]; then
+                    echo "Error: Primary key value must be unique"
+                    return 1
+                fi
+            else
+                local isUniqueValid=$(doUniqueCheck "${db}" "${table}" "${col}" "${pk}" "${cell}")
+                local isNotNullValid=$(doNotNullCheck "${db}" "${table}" "${col}" "${pk}" "${cell}")
+
+                if [[ $isUniqueValid -eq 0 ]]; then
+                    echo "Error: Value must be unique"
+                    return 1
+                fi
+
+                if [[ $isNotNullValid -eq 0 ]]; then
+                    echo "Error: Value cannot be null"
+                    return 1
+                fi
+            fi
+        else
+            echo "Error: Invalid data type"
+            return 1
+        fi
+
+        finalValues[$colIdx]="${cell}"
+    done
+    for i in "${!finalValues[@]}"; do
+        if [[ $i -eq 0 ]]; then
+            dataToAppend="${finalValues[$i]}"
+        else
+            dataToAppend="${dataToAppend},${finalValues[$i]}"
+        fi
+    done
+
+    if [ ! -z "$dataToAppend" ]; then
+        echo "${dataToAppend}" >>"./${db}/${table}"
+        echo "Record successfully inserted"
+    else
+        echo "Error: Record not inserted."
+    fi
+
+}
+
 function doDTCheck {
     local db=$1
     local table=$2

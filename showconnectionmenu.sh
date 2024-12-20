@@ -28,8 +28,14 @@ select choice in "${choices[@]}"; do
 		listTables ${db}
 		;;
 	3)
+
 		tablesWithExt=$(listTables ${db} 1)
 		insert ${db} "${tablesWithExt}"
+		# this works too, but it's not as user-friendly as the above.
+		#read -p "Enter table name: " table
+		#read -p "Enter column names separated by comma: " columns
+		#read -p "Enter Values separated by comma: " values
+		#insertWithoutGUI ${db} "${table}" "${columns}" "${values}"
 		;;
 	4)
 
