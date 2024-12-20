@@ -24,9 +24,6 @@ A Bash-based database management system that provides SQL-like operations throug
 
 ## Supported SQL Operations
 ```sql
--- Create table with constraints
-CREATE TABLE tablename (col1 type1, col2 type2);
-
 -- Insert data
 INSERT INTO table (col1, col2) VALUES (val1, val2);
 
