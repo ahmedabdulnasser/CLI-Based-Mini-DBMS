@@ -51,6 +51,13 @@ function update {
         return 1
     fi
 
+    local pk=$(awk -F: '{if ($1 == "pk") print $2}' "./${db}/${table}meta")
+    local isDTValid=$(doDTCheck "${db}" "${table}" "${columnToUpdate}" "${pk}" "${updateValue}")
+    if [ "$isDTValid" -eq 0 ]; then
+        echo "Invalid data type"
+        return 1
+    fi
+
     temp_file=$(mktemp)
     head -n 1 "./${db}/${table}" >"$temp_file"
     awk -F, -v OFS=, -v col="$column_index" -v val="$value" -v colToUpdate="$columnToUpdate_index" -v updateVal="$updateValue" '

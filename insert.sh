@@ -78,7 +78,7 @@ function doDTCheck {
         echo 1
         ;;
     "numeric")
-        if [[ "$cell" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+        if [[ "$cell" =~ ^[0-9]+$ ]]; then
             echo 1
         else
             echo "Error: Invalid numeric value" >&2

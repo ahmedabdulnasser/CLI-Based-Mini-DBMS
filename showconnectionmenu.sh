@@ -4,6 +4,7 @@ source ./insert.sh
 source ./select.sh
 source ./deletefromtbl.sh
 source ./update.sh
+source ./executesql.sh
 function listTables {
 	local db=$1
 	local withExtension=${2:-0}
@@ -16,7 +17,7 @@ function listTables {
 	done
 }
 db="$1"
-choices=("Create Table" "List Tables" "Insert Into Table" "Select From Table" "Select All From Table" "Delete From Table" "Update Table" "Disconnect")
+choices=("Create Table" "List Tables" "Insert Into Table" "Select From Table" "Select All From Table" "Delete From Table" "Update Table" "Drop Table" "SQL Query" "Disconnect")
 PS3="Your choice: "
 select choice in "${choices[@]}"; do
 	case $REPLY in
@@ -67,8 +68,25 @@ select choice in "${choices[@]}"; do
 			break
 		done
 		;;
-
 	8)
+		tablesWithExt=$(listTables ${db} 1)
+		select tbl in ${tablesWithExt}; do
+			read -p "Are you sure you want to drop table ${tbl}? (y/n): " confirm
+			if [ "$confirm" != "y" ]; then
+				echo "Table ${tbl} not dropped."
+			else
+				rm -f "./${db}/${tbl}"
+				rm -f "./${db}/${tbl}meta"
+				echo "Table ${tbl} dropped."
+			fi
+			break
+		done
+		;;
+	9)
+		read -p "Enter SQL Query: " sql
+		executeSQL "${db}" "${sql}"
+		;;
+	10)
 		echo "Disconnected from ${db}."
 		break
 		;;

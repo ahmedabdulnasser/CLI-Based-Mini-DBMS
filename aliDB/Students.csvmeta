@@ -1,0 +1,2 @@
+Name,varchar,false,true:ID,varchar,true,true:Grade,varchar,false,true:Age,numeric,false,false
+pk:ID
