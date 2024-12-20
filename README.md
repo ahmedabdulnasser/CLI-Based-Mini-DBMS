@@ -39,7 +39,7 @@ UPDATE table SET col = value WHERE condition;
 
 -- Delete records
 DELETE FROM table WHERE condition;
-
+```
 ## Data Types
 
 - **varchar**: String values.
