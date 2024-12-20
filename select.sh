@@ -85,7 +85,6 @@ function selectFromTbl {
             }
         }' "./${db}/${table}" | cut -d',' -f"$(
             IFS=,
-            # Increment each index by 1 since cut uses 1-based indexing
             for i in "${displayIndices[@]}"; do
                 echo -n "$((i + 1)),"
             done | sed 's/,$//'

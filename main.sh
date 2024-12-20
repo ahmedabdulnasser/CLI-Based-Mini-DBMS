@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+source ./dbutils.sh
 
 PS3="Your choice: "
 choices=("Create Database" "List Databases" "Connect to Database" "Drop Database")
@@ -7,16 +8,16 @@ select choice in "${choices[@]}"; do
 	1)
 		echo "Database name:"
 		read dbname
-		./createdb.sh "${dbname}DB"
+		createDB "${dbname}DB"
 		;;
 	2)
-		./listdb.sh
+		listDB
 		;;
 	3)
-		./connecttodb.sh
+		connectToDB
 		;;
 	4)
-		./dropdb.sh
+		dropDB
 		;;
 	esac
 done
