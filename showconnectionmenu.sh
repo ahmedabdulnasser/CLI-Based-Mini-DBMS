@@ -41,9 +41,10 @@ select choice in "${choices[@]}"; do
 
 		tablesWithExt=$(listTables ${db} 1)
 		select tbl in ${tablesWithExt}; do
-			read -p "Enter column name: " column
-			read -p "Enter value: " value
-			selectFromTbl ${db} "${tbl}" ${column} ${value}
+			read -p "Column to display: " displayedColumn
+			read -p "Column to search: " column
+			read -p "Value to search: " value
+			selectFromTbl ${db} "${tbl}" ${column} ${value} ${displayedColumn}
 			break
 		done
 		;;
